@@ -1,0 +1,17 @@
+- hosts: libvirt-hosts
+  vars_files:
+    - vars/{{stage}}.yaml
+    - vars/{{cluster_type}}.yaml
+  pre_tasks:
+  roles:
+    - setup_work_dir
+    - download_cloud_image
+    - create_disk_image
+    - create_snapshot
+    - create_cloud_init
+    - define_vm
+    - start_vm
+    - create_guests_inventory
+  tasks:
+  post_tasks:
+  handlers:

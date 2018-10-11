@@ -1,0 +1,10 @@
+# create snapshot for each vm
+- name: Check Snapshot exists - {{cluster_type}} - {{vm_type.type}} - {{vm.name}}
+  stat: path="{{work_dir}}/cloud_{{cluster_type}}_{{vm_type.type}}_{{vm_type.size}}GB_{{vm.name}}.qcow2"
+  register: snapshot
+- name: Create snapshot for {{cluster_type}} - {{vm_type.type}} - {{vm.name}} if not exists
+  block:
+  - name: Create snapshot for - {{cluster_type}} - {{vm_type.type}} - {{vm.name}}
+    shell: qemu-img create -f qcow2 -b {{work_dir}}/cloud_{{cluster_type}}_{{vm_type.type}}_{{vm_type.size}}GB.qcow2 {{work_dir}}/cloud_{{cluster_type}}_{{vm_type.type}}_{{vm_type.size}}GB_{{vm.name}}.qcow2
+  when: not snapshot.stat.exists
+  

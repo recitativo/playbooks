@@ -1,0 +1,15 @@
+[all:vars]
+cluster_type={{cluster_type}}
+
+{% for vm_type in vm_types %}
+[{{vm_type.type}}]
+{% for vm in vm_type.vms %}
+{{vm.ip_addr}} hostname={{cluster_type}}-{{vm.name}}
+{% endfor %}
+
+[{{vm_type.type}}:vars]
+ansible_ssh_user={{vm_type.user}}
+ansible_ssh_pass={{vm_type.password}}
+ansible_sudo_pass={{vm_type.password}}
+
+{% endfor %}

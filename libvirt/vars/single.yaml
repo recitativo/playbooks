@@ -1,0 +1,27 @@
+vm_types:
+- type: master
+  # Image size in GB
+  size: 10
+  # Memory size in GB
+  memory: 2
+  cpus: 2
+  vms:
+    - name: master01
+      ip_addr: 192.168.100.30
+  user: kube
+  password: password
+- type: worker
+  # Image size in GB
+  size: 20
+  # Memory size in GB
+  memory: 2
+  cpus: 2
+  vms:
+    - name: worker01
+      ip_addr: 192.168.100.31
+    - name: worker02
+      ip_addr: 192.168.100.32
+    - name: worker03
+      ip_addr: 192.168.100.33
+  user: kube
+  password: password

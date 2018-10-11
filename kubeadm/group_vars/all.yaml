@@ -1,0 +1,12 @@
+ansible_python_interpreter: /usr/bin/python3
+k8s_version: 1.11.0
+domain: example
+first_master:
+  ip_addr: 192.168.100.41
+  hostname: multi-master01
+second_master:
+  ip_addr: 192.168.100.42
+  hostname: multi-master02
+third_master:
+  ip_addr: 192.168.100.43
+  hostname: multi-master03

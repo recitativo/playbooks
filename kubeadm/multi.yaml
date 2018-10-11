@@ -1,0 +1,11 @@
+- hosts: master
+  vars_files:
+  pre_tasks:
+  roles:
+    - kubeadm_init
+    - kubeadm_join_second
+    - kubeadm_join_third
+    #- join_masters
+  tasks:
+  post_tasks:
+  handlers:

@@ -1,0 +1,6 @@
+# Cloud Image
+image_url: https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
+nameserver: 192.168.100.1
+gateway: 192.168.100.1
+libvirt_network: staticnat
+libvirt_uri: qemu:///system

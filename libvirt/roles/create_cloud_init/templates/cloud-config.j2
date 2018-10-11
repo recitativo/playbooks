@@ -1,0 +1,22 @@
+#cloud-config
+hostname: {{cluster_type}}-{{vm.name}}
+users:
+  - default
+  - name: {{vm_type.user}}
+    passwd: {{hashed_password.stdout}}
+    lock_passwd: false
+    shell: /bin/bash
+    sudo:  ALL=(ALL) NOPASSWD:ALL
+    groups: sudo
+ssh_pwauth: True
+chpasswd: { expire: False }
+write_files:
+- content: |
+    APT::Periodic::Update-Package-Lists "0";
+    APT::Periodic::Download-Upgradeable-Packages "0";
+    APT::Periodic::AutocleanInterval "0";
+  path: /etc/apt/apt.conf.d/10periodic
+- content: |
+    APT::Periodic::Update-Package-Lists "0";
+    APT::Periodic::Unattended-Upgrade "1";
+  path: /etc/apt/apt.conf.d/20auto-upgrades

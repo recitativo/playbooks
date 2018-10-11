@@ -1,0 +1,6 @@
+# download cloud image for each vm type
+- name: Download Cloud Image
+  include_tasks: download_cloud_image-tasks.yaml
+  loop: "{{vm_types}}"
+  loop_control:
+    loop_var: vm_type

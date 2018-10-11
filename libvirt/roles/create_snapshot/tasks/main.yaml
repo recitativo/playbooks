@@ -1,0 +1,6 @@
+# create snapshot for each vm
+- name: Create Snapshot
+  include_tasks: vm_loop.yaml
+  loop: "{{vm_types}}"
+  loop_control:
+    loop_var: vm_type

@@ -1,0 +1,12 @@
+# Define VM from spec file for each vm
+- name: Get VM list
+  virt:
+    uri: "{{libvirt_uri}}"
+    command: list_vms
+  register: virsh_list
+- debug: var=virsh_list
+- name: Define VM spec file
+  include_tasks: vm_loop.yaml
+  loop: "{{vm_types}}"
+  loop_control:
+    loop_var: vm_type

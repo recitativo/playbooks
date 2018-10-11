@@ -1,0 +1,6 @@
+# Start each VM
+- name: Start VM
+  include_tasks: vm_loop.yaml
+  loop: "{{vm_types}}"
+  loop_control:
+    loop_var: vm_type

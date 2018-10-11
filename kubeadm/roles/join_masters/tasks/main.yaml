@@ -1,0 +1,52 @@
+- name: Phase certs
+  become: yes
+  shell: kubeadm alpha phase certs all --config /root/kubeadm-config.yaml
+  when: inventory_hostname==second_master.ip_addr or inventory_hostname==third_master.ip_addr
+- name: Phase write to disk
+  become: yes
+  shell: kubeadm alpha phase kubelet config write-to-disk --config /root/kubeadm-config.yaml
+  when: inventory_hostname==second_master.ip_addr or inventory_hostname==third_master.ip_addr
+- name: Phase write env
+  become: yes
+  shell: kubeadm alpha phase kubelet write-env-file --config /root/kubeadm-config.yaml
+  when: inventory_hostname==second_master.ip_addr or inventory_hostname==third_master.ip_addr
+- name: Phase kubeconfig kubelet
+  become: yes
+  shell: kubeadm alpha phase kubeconfig kubelet --config /root/kubeadm-config.yaml
+  when: inventory_hostname==second_master.ip_addr or inventory_hostname==third_master.ip_addr
+- name: Restart kubelet
+  become: yes
+  service:
+    name: kubelet
+    enabled: yes
+    state: restarted
+  when: inventory_hostname==second_master.ip_addr or inventory_hostname==third_master.ip_addr
+- name: Add etcd cluster for second master
+  become: yes
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  shell: kubectl exec -n kube-system etcd-{{first_master.hostname}}.{{domain}} -- etcdctl --ca-file /etc/kubernetes/pki/etcd/ca.crt --cert-file /etc/kubernetes/pki/etcd/peer.crt --key-file /etc/kubernetes/pki/etcd/peer.key --endpoints=https://{{first_master.ip_addr}}:2379 member add {{second_master.hostname}}.{{domain}} https://{{second_master.ip_addr}}:2380
+  when: inventory_hostname==second_master.ip_addr
+- name: Add etcd cluster for third master
+  become: yes
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  shell: kubectl exec -n kube-system etcd-{{first_master.hostname}}.{{domain}} -- etcdctl --ca-file /etc/kubernetes/pki/etcd/ca.crt --cert-file /etc/kubernetes/pki/etcd/peer.crt --key-file /etc/kubernetes/pki/etcd/peer.key --endpoints=https://{{first_master.ip_addr}}:2379 member add {{third_master.hostname}}.{{domain}} https://{{third_master.ip_addr}}:2380
+  when: inventory_hostname==third_master.ip_addr
+- name: Phase etcd
+  become: yes
+  shell: kubeadm alpha phase etcd local --config kubeadm-config.yaml
+  when: inventory_hostname==second_master.ip_addr or inventory_hostname==third_master.ip_addr
+- name: Phase kubeconfig all
+  become: yes
+  shell: kubeadm alpha phase kubeconfig all --config kubeadm-config.yaml
+  when: inventory_hostname==second_master.ip_addr or inventory_hostname==third_master.ip_addr
+- name: Phase controlplane
+  become: yes
+  shell: kubeadm alpha phase controlplane all --config kubeadm-config.yaml
+  when: inventory_hostname==second_master.ip_addr or inventory_hostname==third_master.ip_addr
+- name: Phase mark master
+  become: yes
+  shell: kubeadm alpha phase mark-master --config kubeadm-config.yaml
+  when: inventory_hostname==second_master.ip_addr or inventory_hostname==third_master.ip_addr
+

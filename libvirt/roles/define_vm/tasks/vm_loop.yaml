@@ -1,0 +1,6 @@
+# loop for VMs in each VM type
+- name: Define VM from spec file for {{cluster_type}} - {{vm_type.type}}
+  include_tasks: define_vm-tasks.yaml
+  loop: "{{vm_type.vms}}"
+  loop_control:
+    loop_var: vm

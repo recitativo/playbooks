@@ -1,0 +1,150 @@
+- hosts: all
+  vars_files:
+  pre_tasks:
+  roles:
+  tasks:
+  - name: Update and upgrade packages
+    become: yes
+    apt:
+      update_cache: yes
+      upgrade: yes
+  - name: Install pre-requisites
+    become: yes
+    apt:
+      name: "{{packages}}"
+    vars:
+      packages:
+        - apt-transport-https
+        - curl
+        - docker.io
+        - unzip
+  - name: Start Docker
+    become: yes
+    service:
+      name: docker.service
+      enabled: yes
+      state: started
+- hosts: frontend
+  vars_files:
+  pre_tasks:
+  roles:
+  tasks:
+  - name: Install tools
+    become: yes
+    apt:
+      name: "{{packages}}"
+      update_cache: yes
+    vars:
+      packages:
+        - docker-compose
+        - python3-pip
+        - etcd-client
+  - name: Pip install
+    become: yes
+    pip:
+      name: docker docker-compose
+  - name: Disable resolver
+    become: yes
+    service:
+      name: systemd-resolved
+      enabled: no
+      state: stopped
+  - name: Set hosts
+    become: yes
+    lineinfile:
+      path: /etc/hosts
+      line: "127.0.53.1 {{hostname}}"
+      state: present
+  - name: Replace resolv.conf for temporary
+    become: yes
+    copy:
+      src: files/resolv.conf.tmp
+      dest: /etc/resolv.conf
+  - name: Copy docker-compose file for coredns
+    become: yes
+    copy:
+      src: files/coredns/
+      dest: /opt/coredns
+  - name: Run coredns
+    become: yes
+    docker_service:
+      project_name: coredns
+      project_src: /opt/coredns
+  - name: Replace resolv.conf for CoreDNS
+    become: yes
+    copy:
+      src: files/resolv.conf
+      dest: /etc/resolv.conf
+  - name: Add dns records for all nodes
+    shell: "etcdctl set /coredns/{{domain}}/{{hostvars[host]['hostname']}} '{\"host\": \"{{host}}\"}'"
+    loop: "{{groups['all']}}"
+    loop_control:
+      loop_var: host
+  - name: Remove dns records for master
+    shell: "etcdctl rm -r /coredns/{{domain}}/{{cluster_type}}-master"
+    ignore_errors: yes
+  - name: Add dns directory for master
+    shell: "etcdctl mkdir /coredns/{{domain}}/{{cluster_type}}-master"
+  - name: Add dns records for master
+    shell: "etcdctl set /coredns/{{domain}}/{{cluster_type}}-master/{{hostvars[host]['hostname']}} '{\"host\": \"{{host}}\"}'"
+    loop: "{{groups['master']}}"
+    loop_control:
+      loop_var: host
+  post_tasks:
+  handlers:
+- hosts:
+  - master
+  - worker
+  vars_files:
+  pre_tasks:
+  roles:
+  tasks:
+  - name: Add apt-key for google cloud
+    become: yes
+    shell: curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+  - name: Add apt source for kubernetes
+    become: yes
+    shell: echo 'deb http://apt.kubernetes.io/ kubernetes-xenial main' > /etc/apt/sources.list.d/kubernetes.list
+  - name: Install k8s tools
+    become: yes
+    apt:
+      name: "{{packages}}"
+      update_cache: yes
+    vars:
+      packages:
+        - kubelet={{k8s_version}}-00
+        - kubeadm={{k8s_version}}-00
+        - kubectl={{k8s_version}}-00
+  - name: Start kubelet
+    become: yes
+    service:
+      name: kubelet
+      enabled: yes
+      state: started
+  - name: Mark k8s tools as hold
+    become: yes
+    shell: apt-mark hold kubelet kubeadm kubectl
+  - name: Set kernel for flannel
+    become: yes
+    shell: sysctl net.bridge.bridge-nf-call-iptables=1
+  - name: Unset default DNS
+    become: yes
+    lineinfile:
+      path: /etc/netplan/50-cloud-init.yaml
+      line: "                - 192.168.100.1"
+      state: absent
+  - name: Set frontend DNS
+    become: yes
+    lineinfile:
+      path: /etc/netplan/50-cloud-init.yaml
+      line: "                - {{groups['frontend'][0]}}"
+      insertbefore: "version: 2"
+      state: present
+  - name: Apply DNS config
+    become: yes
+    shell: netplan apply
+  - name: Set hostname with domain
+    become: yes
+    shell: hostnamectl set-hostname {{hostvars[inventory_hostname]['hostname']}}.{{domain}}
+  post_tasks:
+  handlers:

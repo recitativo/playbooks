@@ -1,0 +1,153 @@
+# Setup VM
+- hosts: all
+  vars_files:
+  pre_tasks:
+  roles:
+  tasks:
+  - name: Update and upgrade packages
+    become: yes
+    apt:
+      update_cache: yes
+      upgrade: yes
+  - name: Install pre-requisites
+    become: yes
+    apt:
+      name: "{{packages}}"
+    vars:
+      packages:
+        - docker.io
+        - gcc
+        - make
+  - name: Install golang with snap
+    become: yes
+    shell: snap install --classic go
+  - name: Start Docker
+    become: yes
+    service:
+      name: docker.service
+      enabled: yes
+      state: started
+  - name: Set kernel for flannel
+    become: yes
+    shell: sysctl net.bridge.bridge-nf-call-iptables=1
+  - name: Add user into docker group
+    become: yes
+    user:
+      name: "{{ansible_ssh_user}}"
+      append: yes
+      groups:
+        - docker
+  - name: Reset ssh connection
+    meta: reset_connection
+  - name: Create GO workspace
+    file:
+      path: "{{gopath}}"
+      state: directory
+  - name: Get PATH
+    shell: echo $PATH
+    register: path
+  - name: Get k8s src
+    environment:
+      PATH: "{{path.stdout}}:/snap/bin"
+      GOPATH: "{{gopath}}"
+    shell: go get k8s.io/kubernetes
+    ignore_errors: yes
+  - name: Get test-infra src
+    environment:
+      PATH: "{{path.stdout}}:/snap/bin"
+      GOPATH: "{{gopath}}"
+    shell: go get k8s.io/test-infra
+    ignore_errors: yes
+  - name: Update kubetest src
+    environment:
+      PATH: "{{path.stdout}}:/snap/bin"
+      GOPATH: "{{gopath}}"
+    shell: go get -u k8s.io/test-infra/kubetest
+    ignore_errors: yes
+  - name: Install Etcd
+    environment:
+      PATH: "{{path.stdout}}:/snap/bin"
+      GOPATH: "{{gopath}}"
+    become: yes
+    args:
+      chdir: "{{gopath}}/src/k8s.io/kubernetes"
+    shell: hack/install-etcd.sh
+  - name: Get PATH for build
+    shell: echo $PATH
+    register: path
+  - name: Build k8s
+    environment:
+      PATH: "{{path.stdout}}:/snap/bin:{{gopath}}/src/k8s.io/kubernetes/third_party/etcd"
+      GOPATH: "{{gopath}}"
+    args:
+      chdir: "{{gopath}}/src/k8s.io/kubernetes"
+    shell: go run hack/e2e.go --get=false -- --build
+  # Run cluster
+  - name: Get PATH for run
+    shell: echo $PATH
+    register: path
+  - name: Get running cluster
+    become: yes
+    shell: "ps -ef | grep -v grep | grep -w local-up-cluster | awk '{print $2}'"
+    register: running_procs
+  - name: Kill running local-up-cluster
+    become: yes
+    shell: "kill {{ item }}"
+    with_items: "{{running_procs.stdout_lines}}"
+  - wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+    with_items: "{{running_procs.stdout_lines}}"
+    become: yes
+    ignore_errors: yes
+    register: killed_procs
+  - name: Force kill stuck processes
+    become: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{killed_procs.results | select('failed') | map(attribute='item') | list}}"
+  - name: Kill hyperkube processes
+    become: yes
+    shell: "pkill hyperkube"
+    ignore_errors: yes
+  - name: Start k8s cluster
+    environment:
+      PATH: "{{path.stdout}}:/snap/bin:{{gopath}}/src/k8s.io/kubernetes/third_party/etcd"
+      GOPATH: "{{gopath}}"
+    args:
+      chdir: "{{gopath}}/src/k8s.io/kubernetes"
+    become: yes
+    shell: nohup hack/local-up-cluster.sh >local-up-cluster.log 2>&1 &
+    # To manipulate this cluster, use cluster/kubectl.sh or other shell scripts.
+    # e.g. cluster/kubectl.sh get namespaces
+  - name: Wait for port 8080 starting
+    wait_for:
+      port: 8080
+      delay: 10
+  # Run e2e test!!
+  - name: Get PATH for test
+    shell: echo $PATH
+    register: path
+  - name: Run e2e test with dry run
+    environment:
+      PATH: "{{path.stdout}}:/snap/bin:{{gopath}}/src/k8s.io/kubernetes/third_party/etcd"
+      GOPATH: "{{gopath}}"
+      PRIVILEGED: true
+      KUBECONFIG: /var/run/kubernetes/admin.kubeconfig
+      KUBE_MASTER_IP: 127.0.0.1:6443
+      KUBE_MASTER: local
+    args:
+      chdir: "{{gopath}}/src/k8s.io/kubernetes"
+    shell: go run hack/e2e.go -- --provider=local --test --test_args="--ginkgo.dryRun=true --ginkgo.focus=\[Conformance\]"
+  #- name: Run e2e test for Dashboard
+  #  # export KUBE_MASTER=local; export KUBE_MASTER_IP=127.0.0.1:6443; export KUBECONFIG=/var/run/kubernetes/admin.kubeconfig; export PATH=$PATH:/home/kube/go/src/k8s.io/kubernetes/third_party/etcd
+  #  environment:
+  #    PATH: "{{path.stdout}}:/snap/bin:{{gopath}}/src/k8s.io/kubernetes/third_party/etcd"
+  #    GOPATH: "{{gopath}}"
+  #    KUBECONFIG: /var/run/kubernetes/admin.kubeconfig
+  #    KUBE_MASTER_IP: 127.0.0.1:6443
+  #    KUBE_MASTER: local
+  #  args:
+  #    chdir: "{{gopath}}/src/k8s.io/kubernetes"
+  #  shell: go run hack/e2e.go -- --provider=local --test --test_args="--ginkgo.focus=Dashboard"
+  post_tasks:
+  handlers:

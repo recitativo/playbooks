@@ -1,0 +1,25 @@
+apiVersion: kubeadm.k8s.io/v1alpha2
+kind: MasterConfiguration
+kubernetesVersion: v{{k8s_version}}
+apiServerCertSANs:
+- "{{cluster_type}}-master.{{domain}}"
+api:
+    controlPlaneEndpoint: "{{cluster_type}}-master.{{domain}}:6443"
+etcd:
+  local:
+    extraArgs:
+      listen-client-urls: "https://127.0.0.1:2379,https://{{inventory_hostname}}:2379"
+      advertise-client-urls: "https://{{inventory_hostname}}:2379"
+      listen-peer-urls: "https://{{inventory_hostname}}:2380"
+      initial-advertise-peer-urls: "https://{{inventory_hostname}}:2380"
+      initial-cluster: "{{first_master.hostname}}=https://{{first_master.ip_addr}}:2380,{{hostname}}.{{domain}}=https://{{inventory_hostname}}:2380"
+      initial-cluster-state: existing
+    serverCertSANs:
+      - {{hostname}}.{{domain}}
+      - {{inventory_hostname}}
+    peerCertSANs:
+      - {{hostname}}.{{domain}}
+      - {{inventory_hostname}}
+networking:
+    # This CIDR is for flannel.
+    podSubnet: "10.244.0.0/16"

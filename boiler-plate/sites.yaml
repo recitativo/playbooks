@@ -1,0 +1,3 @@
+# main playbook
+- import_playbook: playbook1.yaml
+- import_playbook: playbook2.yaml

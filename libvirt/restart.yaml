@@ -1,0 +1,11 @@
+- hosts: libvirt-hosts
+  vars_files:
+    - vars/{{stage}}.yaml
+    - vars/{{cluster_type}}.yaml
+  pre_tasks:
+  roles:
+    - shutdown_vm
+    - start_vm
+  tasks:
+  post_tasks:
+  handlers:

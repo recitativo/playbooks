@@ -1,0 +1,11 @@
+. {
+    etcd . {
+        path /coredns
+        endpoint http://etcd:2379
+        fallthrough
+    }
+    proxy . 8.8.8.8
+    errors
+    log
+    loadbalance round_robin
+}
