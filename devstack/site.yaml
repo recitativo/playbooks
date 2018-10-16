@@ -1,0 +1,56 @@
+# Setup VM
+- hosts: all
+  vars_files:
+  pre_tasks:
+  roles:
+  tasks:
+  - name: Update and upgrade packages
+    become: yes
+    apt:
+      update_cache: yes
+      upgrade: yes
+  - name: Install pre-requisites
+    become: yes
+    apt:
+      name: "{{packages}}"
+    vars:
+      packages:
+        - python3-pip
+        - docker.io
+  - name: Start Docker
+    become: yes
+    service:
+      name: docker.service
+      enabled: yes
+      state: started
+  - name: Add user into docker group
+    become: yes
+    user:
+      name: "{{ansible_ssh_user}}"
+      append: yes
+      groups:
+        - docker
+  - name: Reset ssh connection
+    meta: reset_connection
+
+
+  - name: Checkout devstack
+    git:
+      repo: https://github.com/openstack-dev/devstack
+      dest: /home/stack/devstack
+
+  - name: Copy local.conf
+    copy:
+      src: files/local.conf
+      dest: /home/stack/devstack/local.conf
+
+  - name: Copy post_stack scripts
+    copy:
+      src: files/post_stack
+      dest: /home/stack/
+      directory_mode: yes
+
+  #- name: Start devstack
+  #- name: Run post_stack
+  post_tasks:
+  handlers:

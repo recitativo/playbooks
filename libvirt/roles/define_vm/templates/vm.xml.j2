@@ -70,6 +70,13 @@
       <model type='rtl8139'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
     </interface>
+{{if second_nic}}
+    <interface type='network'>
+      <source network='{{libvirt_network}}'/>
+      <model type='rtl8139'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x09' function='0x0'/>
+    </interface>
+{{endif}}
     <serial type='pty'>
       <target type='isa-serial' port='0'>
         <model name='isa-serial'/>

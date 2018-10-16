@@ -1,0 +1,13 @@
+vm_types:
+- type: devstack
+  # Image size in GB
+  size: 128
+  # Memory size in GB
+  memory: 16
+  cpus: 6
+  vms:
+    - name: devstack
+      ip_addr: 192.168.100.10
+  user: stack
+  password: password
+second_nic: yes
