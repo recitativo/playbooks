@@ -1,13 +1,13 @@
 # create disk image for each vm type
 - name: Check Disk Image exists - {{cluster_type}} - {{vm_type.type}}
-  stat: path="{{work_dir}}/cloud_{{cluster_type}}_{{vm_type.type}}_{{vm_type.size}}GB.qcow2"
+  stat: path="{{work_dir}}/{{image_url_file}}_{{vm_type.size}}GB.qcow2"
   register: disk_image
 - name: Create backing disk image for each image if not exists
   block:
   - name: Convert cloud image into qcow2 - {{cluster_type}} - {{vm_type.type}}
-    shell: qemu-img convert -O qcow2 {{work_dir}}/cloud_{{cluster_type}}_{{vm_type.type}}.img {{work_dir}}/cloud_{{cluster_type}}_{{vm_type.type}}_{{vm_type.size}}GB.qcow2
+    shell: qemu-img convert -O qcow2 {{work_dir}}/{{image_url_file}} {{work_dir}}/{{image_url_file}}_{{vm_type.size}}GB.qcow2
   - name: Get cloud image info - {{cluster_type}} - {{vm_type.type}}
-    shell: qemu-img info {{work_dir}}/cloud_{{cluster_type}}_{{vm_type.type}}_{{vm_type.size}}GB.qcow2 --output json
+    shell: qemu-img info {{work_dir}}/{{image_url_file}}_{{vm_type.size}}GB.qcow2 --output json
     register: qcow2_info
   - name: Parse cloud image info - {{cluster_type}} - {{vm_type.type}}
     set_fact: qcow2_json="{{qcow2_info.stdout|from_json}}"
@@ -19,5 +19,5 @@
   - name: Show additional disk size for cloud image - {{cluster_type}} - {{vm_type.type}}
     debug: msg="additional disk size for {{cluster_type}} - {{vm_type.type}} should be {{qcow2_resize.stdout}}"
   - name: Resize disk for cloud image - {{cluster_type}} - {{vm_type.type}}
-    shell: qemu-img resize {{work_dir}}/cloud_{{cluster_type}}_{{vm_type.type}}_{{vm_type.size}}GB.qcow2 +{{qcow2_resize.stdout}}
+    shell: qemu-img resize {{work_dir}}/{{image_url_file}}_{{vm_type.size}}GB.qcow2 +{{qcow2_resize.stdout}}
   when: not disk_image.stat.exists

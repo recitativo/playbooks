@@ -1,4 +1,4 @@
 # Create inventory file for VM guests
 - name: Create inventory file for VM guests
-  template: src=templates/libvirt-guests.j2 dest={{cluster_type}}
+  template: src=templates/libvirt-guests.j2 dest=dist/{{cluster_type}}
   delegate_to: localhost

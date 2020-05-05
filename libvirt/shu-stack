@@ -3,6 +3,6 @@
 
 [libvirt-hosts:vars]
 stage=shu-stack
-#cluster_type=single
-#cluster_type=multi
+cluster_type=single
+cluster_type=multi
 cluster_type=allinone

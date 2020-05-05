@@ -1,7 +1,7 @@
 Create VMs for libvirt
 ======================
 
-This scripts create Ubutu VMs from cloud image using libvirt.
+This scripts create Ubuntu VMs from cloud image using libvirt.
 
 # Reference
 https://youth2009.org/post/kvm-with-ubuntu-cloud-image/
@@ -15,8 +15,8 @@ https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v2.html#
 
 ```
 sudo apt install qemu-kvm libvirt-bin virtinst bridge-utils cloud-image-utils whois
-
 ```
+
 # Cloud Init
 cloud init does not create swap as default.
 create cloud init CD image using `cloud-localds`
@@ -30,3 +30,22 @@ To start VM, use `start` command on `virt` module.
 
 # TODOs
 use `tags` for task to re-create VMs.
+
+# How to use
+
+Before run playbook, run `ssh-agent bash` and `ssh-add <ssh key file>` to access `libvirt_host` via ssh.
+Run playbook with `-k` option for input ssh passphrase and `-K` option for `sudo`.
+```
+ansible-playbook -v -i recitativo sites.yaml -k -K
+```
+
+* `sites.yaml`: `libvirt-hosts`
+  + `stage`: Environments to be managed
+    - `shu-stack`: For desktop machine
+    - `recitativo`: For laptop machine
+  + `cluster_type`: Kubernetes cluster type
+    - `single`: Single master kubernetes cluster
+    - `multi`: Multi master kubernetes cluster
+    - `allinone`: All-in-one kubernetes cluster incldes development environment
+
+Inventory file for bootstrapping k8s cluster with created VMs will be generated into this directory as `./dist/{{cluster_type}}`.

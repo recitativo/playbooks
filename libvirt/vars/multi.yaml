@@ -8,7 +8,7 @@ vm_types:
   vms:
     - name: frontend
       ip_addr: 192.168.100.40
-  user: frontend
+  user: kube
   password: password
 - type: master
   # Image size in GB
@@ -40,3 +40,4 @@ vm_types:
       ip_addr: 192.168.100.53
   user: kube
   password: password
+second_nic: no

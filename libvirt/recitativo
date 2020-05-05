@@ -4,5 +4,5 @@
 [libvirt-hosts:vars]
 stage=recitativo
 #cluster_type=single
-#cluster_type=multi
-cluster_type=allinone
+cluster_type=multi
+#cluster_type=allinone

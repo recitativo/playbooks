@@ -32,7 +32,7 @@
     <emulator>/usr/bin/kvm-spice</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='{{work_dir}}/cloud_{{cluster_type}}_{{vm_type.type}}_{{vm_type.size}}GB_{{vm.name}}.qcow2'/>
+      <source file='{{work_dir}}/{{cluster_type}}_{{vm_type.type}}_{{vm_type.size}}GB_{{vm.name}}.qcow2'/>
       <target dev='vda' bus='virtio'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x0'/>
     </disk>
@@ -70,13 +70,13 @@
       <model type='rtl8139'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
     </interface>
-{{if second_nic}}
+{% if second_nic %}
     <interface type='network'>
       <source network='{{libvirt_network}}'/>
       <model type='rtl8139'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x09' function='0x0'/>
     </interface>
-{{endif}}
+{% endif %}
     <serial type='pty'>
       <target type='isa-serial' port='0'>
         <model name='isa-serial'/>

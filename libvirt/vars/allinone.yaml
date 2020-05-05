@@ -10,3 +10,4 @@ vm_types:
       ip_addr: 192.168.100.60
   user: kube
   password: password
+second_nic: no
