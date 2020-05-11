@@ -49,3 +49,9 @@ ansible-playbook -v -i recitativo sites.yaml -k -K
     - `allinone`: All-in-one kubernetes cluster incldes development environment
 
 Inventory file for bootstrapping k8s cluster with created VMs will be generated into this directory as `./dist/{{cluster_type}}`.
+
+# Start/Stop/Restart VMs
+
+```
+ansible-playbook -i <stage> <start.yaml|stop.yaml|restart.yaml>
+```

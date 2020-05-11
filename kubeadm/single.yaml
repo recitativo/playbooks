@@ -6,14 +6,20 @@
   - name: Reset kubeadm
     become: yes
     shell: kubeadm reset -f
+  - name: Cleanup iptables
+    become: yes
+    shell: iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+  - name: Cleanup CNI settings
+    become: yes
+    shell: rm -fr /etc/cni/net.d/
   - name: Init kubeadm
     become: yes
-    shell: kubeadm init --kubernetes-version=1.11.0 --apiserver-advertise-address={{inventory_hostname}} --pod-network-cidr=10.244.0.0/16
+    shell: kubeadm init --kubernetes-version={{k8s_version}} --apiserver-advertise-address={{inventory_hostname}} --pod-network-cidr=10.244.0.0/16
   - name: Apply flannel
     become: yes
     environment:
       KUBECONFIG: /etc/kubernetes/admin.conf
-    shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/c5d10c8/Documentation/kube-flannel.yml
+    shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.12.0/Documentation/kube-flannel.yml
   - name: Allow create pods on master
     become: yes
     environment:

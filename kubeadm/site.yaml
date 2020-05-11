@@ -2,6 +2,7 @@
   vars_files:
   pre_tasks:
   roles:
+  #- role: determine_first_master
   tasks:
   - name: Update and upgrade packages
     become: yes
@@ -42,7 +43,9 @@
   - name: Pip install
     become: yes
     pip:
-      name: docker docker-compose
+      name:
+        - docker
+        - docker-compose
   - name: Disable resolver
     become: yes
     service:
@@ -65,9 +68,15 @@
     copy:
       src: files/coredns/
       dest: /opt/coredns
+  - name: Tear down existing coredns
+    become: yes
+    docker_compose:
+      project_name: coredns
+      project_src: /opt/coredns
+      state: absent
   - name: Run coredns
     become: yes
-    docker_service:
+    docker_compose:
       project_name: coredns
       project_src: /opt/coredns
   - name: Replace resolv.conf for CoreDNS
@@ -85,11 +94,44 @@
     ignore_errors: yes
   - name: Add dns directory for master
     shell: "etcdctl mkdir /coredns/{{domain}}/{{cluster_type}}-master"
+    ignore_errors: yes
   - name: Add dns records for master
     shell: "etcdctl set /coredns/{{domain}}/{{cluster_type}}-master/{{hostvars[host]['hostname']}} '{\"host\": \"{{host}}\"}'"
     loop: "{{groups['master']}}"
     loop_control:
       loop_var: host
+  #- name: Create directory for haproxy.cfg
+  #  file:
+  #    path: /opt/haproxy
+  #    state: directory
+  #- name: Copy haproxy.cfg
+  #  become: yes
+  #  copy:
+  #    src: files/haproxy.cfg
+  #    dest: /opt/haproxy/haproxy.cfg
+  #- name: Add haproxy backend
+  #  become: yes
+  #  lineinfile:
+  #    path: /opt/haproxy/haproxy.cfg
+  #    line: "    server {{hostvars[host]['hostname']}} {{host}}:6443 check inter 5s"
+  #    state: present
+  #  #when: host == first_master
+  #  loop: "{{groups['master']}}"
+  #  loop_control:
+  #    loop_var: host
+  #- name: Run haproxy container
+  #  become: yes
+  #  docker_container:
+  #    name: haproxy
+  #    image: haproxy:2.1.4
+  #    state: started
+  #    recreate: yes
+  #    restart_policy: always
+  #    #exposed_ports:
+  #    #  - 6443
+  #    network_mode: host
+  #    volumes:
+  #      - /opt/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
   post_tasks:
   handlers:
 - hosts:

@@ -1,5 +1,6 @@
 [all:vars]
 cluster_type=multi
+domain=example
 
 [frontend]
 192.168.100.40 hostname=multi-frontend

@@ -1,0 +1,13 @@
+- name: Register certificate_key
+  set_fact:
+    certificate_key: "{{hostvars[groups['master'][0]].certificate_key}}"
+- name: Register join_command for worker
+  set_fact:
+    join_command: "{{hostvars[groups['master'][0]].join_command}}"
+- name: Edit join command for master
+  set_fact:
+    join_command: "{{join_command}} --control-plane --certificate-key={{certificate_key}}"
+  when: "'master' in group_names"
+- name: Join node
+  become: yes
+  shell: "{{join_command}}"

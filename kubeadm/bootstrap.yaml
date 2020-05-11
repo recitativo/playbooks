@@ -1,0 +1,23 @@
+- hosts:
+  - master
+  - worker
+  vars_files:
+  pre_tasks:
+  roles:
+    - role: determine_first_master
+    - role: reset_node
+      when: inventory_hostname != first_master
+    - role: reset_node
+      when: inventory_hostname == first_master
+    - role: generate_cert_key
+      when: inventory_hostname == first_master
+    - role: init_master
+      when: inventory_hostname == first_master
+    - role: print_join_command
+      when: inventory_hostname == first_master
+    - role: join_nodes
+      when: inventory_hostname != first_master
+    # add joined master address into haproxy.cfg
+  tasks:
+  post_tasks:
+  handlers:

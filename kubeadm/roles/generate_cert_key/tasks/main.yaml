@@ -1,0 +1,18 @@
+- name: Generate certificate key for upload certs
+  shell: kubeadm alpha certs certificate-key
+  register: certificate_key
+- name: Register certificate key
+  set_fact:
+    certificate_key: "{{certificate_key.stdout}}"
+- name: Generate token
+  shell: kubeadm token generate
+  register: token
+- name: Register token
+  set_fact:
+    token: "{{token.stdout}}"
+- name: Generate discovery token
+  shell: kubeadm token generate
+  register: discovery_token
+- name: Register discovery token
+  set_fact:
+    discovery_token: "{{discovery_token.stdout}}"

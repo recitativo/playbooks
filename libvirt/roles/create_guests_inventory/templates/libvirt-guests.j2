@@ -1,5 +1,8 @@
 [all:vars]
 cluster_type={{cluster_type}}
+{% if domain %}
+domain={{domain}}
+{% endif %}
 
 {% for vm_type in vm_types %}
 [{{vm_type.type}}]

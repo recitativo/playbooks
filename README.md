@@ -5,11 +5,11 @@ Ansible Playbooks
 Template for Ansible Playbooks
 
 # libvirt
-Manage VMs with libvirt
+Manage VMs for kubernetes clusters or devstack using `libvirt`.
 
 # kubeadm
-Install kubernetes using kubeadm on VMs created by `libvirt` playbook for `single` or `multi` settings
+Setup `kubeadm` into VMs created by `libvirt` playbook for `single` or `multi` settings.
+And bootstrap VMs as kubernetes cluster.
 
 # devkube
-Install kubernetes development environment on VMs created by `libvirt` playbook for `allinone` settings
-  
+Create simple kubernetes cluster and install development environment on VMs created by `libvirt` playbook for `allinone` settings.

@@ -1,24 +1,108 @@
-apiVersion: kubeadm.k8s.io/v1alpha2
-kind: MasterConfiguration
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+#bootstrapTokens:
+#- token: "{{token}}"
+#  description: "kubeadm bootstrap token"
+#  ttl: "24h"
+#- token: "{{discovery_token}}"
+#  description: "another bootstrap token"
+#  usages:
+#  - authentication
+#  - signing
+#  groups:
+#  - system:bootstrappers:kubeadm:default-node-token
+#nodeRegistration:
+#  name: "ec2-10-100-0-1"
+#  criSocket: "/var/run/dockershim.sock"
+#  taints:
+#  - key: "kubeadmNode"
+#    value: "master"
+#    effect: "NoSchedule"
+#  kubeletExtraArgs:
+#    cgroup-driver: "cgroupfs"
+#  ignorePreflightErrors:
+#  - IsPrivilegedUser
+#localAPIEndpoint:
+#  advertiseAddress: "{{inventory_hostname}}"
+#  bindPort: 6443
+certificateKey: {{certificate_key}}
+
+---
+
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+clusterName: "{{cluster_type}}"
 kubernetesVersion: v{{k8s_version}}
-apiServerCertSANs:
-- "{{cluster_type}}-master.{{domain}}"
-api:
-    controlPlaneEndpoint: "{{cluster_type}}-master.{{domain}}:6443"
-etcd:
-  local:
-    extraArgs:
-      listen-client-urls: "https://127.0.0.1:2379,https://{{inventory_hostname}}:2379"
-      advertise-client-urls: "https://{{inventory_hostname}}:2379"
-      listen-peer-urls: "https://{{inventory_hostname}}:2380"
-      initial-advertise-peer-urls: "https://{{inventory_hostname}}:2380"
-      initial-cluster: "{{hostname}}.{{domain}}=https://{{inventory_hostname}}:2380"
-    serverCertSANs:
-      - {{hostname}}.{{domain}}
-      - {{inventory_hostname}}
-    peerCertSANs:
-      - {{hostname}}.{{domain}}
-      - {{inventory_hostname}}
+controlPlaneEndpoint: "{{cluster_type}}-master.{{domain}}:6443"
+#certificatesDir: "/etc/kubernetes/pki"
+#imageRepository: "k8s.gcr.io"
+#useHyperKubeImage: false
+#etcd:
+#  # one of local or external
+#  local:
+#    #imageRepository: "k8s.gcr.io"
+#    #imageTag: "3.2.24"
+#    #dataDir: "/var/lib/etcd"
+#    extraArgs:
+#      listen-client-urls: "https://127.0.0.1:2379,https://{{inventory_hostname}}:2379"
+#    serverCertSANs:
+#    - {{hostname}}.{{domain}}
+#    - {{inventory_hostname}}
+#    peerCertSANs:
+#    - {{hostname}}.{{domain}}
+#    - {{inventory_hostname}}
+#  # external:
+#    # endpoints:
+#    # - "10.100.0.1:2379"
+#    # - "10.100.0.2:2379"
+#    # caFile: "/etcd/kubernetes/pki/etcd/etcd-ca.crt"
+#    # certFile: "/etcd/kubernetes/pki/etcd/etcd.crt"
+#    # keyFile: "/etcd/kubernetes/pki/etcd/etcd.key"
 networking:
-    # This CIDR is for flannel.
-    podSubnet: "10.244.0.0/16"
+  #serviceSubnet: "10.96.0.0/12"
+  podSubnet: "10.244.0.0/16"
+  #dnsDomain: "cluster.local"
+#apiServer:
+#  extraArgs:
+#    advertise-address: {{inventory_hostname}}
+#    #authorization-mode: "Node,RBAC"
+#  #extraVolumes:
+#  #- name: "some-volume"
+#  #  hostPath: "/etc/some-path"
+#  #  mountPath: "/etc/some-pod-path"
+#  #  readOnly: false
+#  #  pathType: File
+#  certSANs:
+#  - {{hostname}}.{{domain}}
+#  - {{inventory_hostname}}
+#  timeoutForControlPlane: 4m0s
+#controllerManager:
+#  extraArgs:
+#    "node-cidr-mask-size": "20"
+#  extraVolumes:
+#  - name: "some-volume"
+#    hostPath: "/etc/some-path"
+#    mountPath: "/etc/some-pod-path"
+#    readOnly: false
+#    pathType: File
+#scheduler:
+#  extraArgs:
+#    address: "10.100.0.1"
+#extraVolumes:
+#- name: "some-volume"
+#  hostPath: "/etc/some-path"
+#  mountPath: "/etc/some-pod-path"
+#  readOnly: false
+#  pathType: File
+
+---
+
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+# kubelet specific options here
+
+---
+
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+# kube-proxy specific options here

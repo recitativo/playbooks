@@ -14,4 +14,4 @@ ansible_ssh_user: shu
 #ansible_sudo_pass: 
 
 # Workspace
-work_dir: /home/shu/DataRoom50G/ansible-libvirt
+work_dir: /home/shu/libvirt-images

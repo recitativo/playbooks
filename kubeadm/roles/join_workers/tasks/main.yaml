@@ -1,8 +1,0 @@
-- name: Get join command
-  become: yes
-  shell: kubeadm alpha phase certs all --config /root/kubeadm-config.yaml
-  when: inventory_hostname==first_master.ip_addr
-- name: Join worker
-  become: yes
-  shell: kubeadm alpha phase kubelet write-env-file --config /root/kubeadm-config.yaml
-  when: inventory_hostname==second_master.ip_addr or inventory_hostname==third_master.ip_addr

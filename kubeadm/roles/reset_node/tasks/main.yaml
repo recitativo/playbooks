@@ -1,0 +1,9 @@
+- name: Reset kubeadm
+  become: yes
+  shell: kubeadm reset -f
+- name: Cleanup iptables
+  become: yes
+  shell: iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+- name: Cleanup CNI settings
+  become: yes
+  shell: rm -fr /etc/cni/net.d/

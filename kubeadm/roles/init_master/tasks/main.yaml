@@ -1,0 +1,13 @@
+- name: Set kubeadm-config.yaml
+  become: yes
+  template:
+    src: files/kubeadm-config.yaml
+    dest: /root/kubeadm-config.yaml
+- name: Init kubeadm
+  become: yes
+  shell: kubeadm init --config /root/kubeadm-config.yaml --upload-certs
+- name: Apply flannel
+  become: yes
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.12.0/Documentation/kube-flannel.yml
