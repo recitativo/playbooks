@@ -89,49 +89,48 @@
     loop: "{{groups['all']}}"
     loop_control:
       loop_var: host
-  - name: Remove dns records for master
-    shell: "etcdctl rm -r /coredns/{{domain}}/{{cluster_type}}-master"
-    ignore_errors: yes
-  - name: Add dns directory for master
-    shell: "etcdctl mkdir /coredns/{{domain}}/{{cluster_type}}-master"
-    ignore_errors: yes
-  - name: Add dns records for master
-    shell: "etcdctl set /coredns/{{domain}}/{{cluster_type}}-master/{{hostvars[host]['hostname']}} '{\"host\": \"{{host}}\"}'"
+  - name: Add dns records for master frontend
+    shell: "etcdctl set /coredns/{{domain}}/{{cluster_type}}-master '{\"host\": \"{{inventory_hostname}}\"}'"
+  - name: Create directory for haproxy.cfg
+    file:
+      path: /opt/haproxy
+      state: directory
+  - name: Copy haproxy.cfg
+    become: yes
+    copy:
+      src: files/haproxy.cfg
+      dest: /opt/haproxy/haproxy.cfg
+  - name: Add haproxy backend for api servers
+    become: yes
+    lineinfile:
+      path: /opt/haproxy/haproxy.cfg
+      line: "    server {{hostvars[host]['hostname']}} {{host}}:6443 check inter 5s"
+      insertafter: "^backend k8s-apiservers"
+      state: present
     loop: "{{groups['master']}}"
     loop_control:
       loop_var: host
-  #- name: Create directory for haproxy.cfg
-  #  file:
-  #    path: /opt/haproxy
-  #    state: directory
-  #- name: Copy haproxy.cfg
-  #  become: yes
-  #  copy:
-  #    src: files/haproxy.cfg
-  #    dest: /opt/haproxy/haproxy.cfg
-  #- name: Add haproxy backend
-  #  become: yes
-  #  lineinfile:
-  #    path: /opt/haproxy/haproxy.cfg
-  #    line: "    server {{hostvars[host]['hostname']}} {{host}}:6443 check inter 5s"
-  #    state: present
-  #  #when: host == first_master
-  #  loop: "{{groups['master']}}"
-  #  loop_control:
-  #    loop_var: host
-  #- name: Run haproxy container
-  #  become: yes
-  #  docker_container:
-  #    name: haproxy
-  #    image: haproxy:2.1.4
-  #    state: started
-  #    recreate: yes
-  #    restart_policy: always
-  #    #exposed_ports:
-  #    #  - 6443
-  #    network_mode: host
-  #    volumes:
-  #      - /opt/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+  - name: Add haproxy backend for user services
+    become: yes
+    lineinfile:
+      path: /opt/haproxy/haproxy.cfg
+      line: "    server {{hostvars[host]['hostname']}} {{host}}"
+      insertafter: "^backend user-services"
+      state: present
+    loop: "{{groups['master']}}"
+    loop_control:
+      loop_var: host
+  - name: Run haproxy container
+    become: yes
+    docker_container:
+      name: haproxy
+      image: haproxy:2.1.4
+      state: started
+      recreate: yes
+      restart_policy: always
+      network_mode: host
+      volumes:
+        - /opt/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
   post_tasks:
   handlers:
 - hosts:
@@ -180,7 +179,7 @@
     lineinfile:
       path: /etc/netplan/50-cloud-init.yaml
       line: "                - {{groups['frontend'][0]}}"
-      insertbefore: "version: 2"
+      insertafter: "                addresses:"
       state: present
   - name: Apply DNS config
     become: yes

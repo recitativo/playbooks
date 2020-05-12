@@ -31,13 +31,7 @@ Add record into `/etc/hosts` and reboot your machine.
 
 ```
 # k8s HA cluster frontend with haproxy
-#192.168.100.40  multi-master.example
-
-# k8s HA cluster frontend with DNS roundrobbin
-192.168.100.41  multi-master.example
-192.168.100.42  multi-master.example
-192.168.100.43  multi-master.example
-
+192.168.100.40  multi-master.example
 ```
 
 ## Check cluster with adding nginx service
