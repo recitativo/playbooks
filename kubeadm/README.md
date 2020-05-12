@@ -40,9 +40,8 @@ Login to any node with SSH.
 ```
 sudo -i
 export KUBECONFIG=/etc/kubernetes/admin.conf
-# Copy `nginx_test_deploy.yaml` and `nginx_test_service.yaml` from `playbooks/kubeadm/files/` to any node.
-kubectl apply -f nginx_test_deploy.yaml
-kubectl apply -f nginx_test_service.yaml
+# Copy `nginx_sample.yaml` from `playbooks/kubeadm/files/` to any node.
+kubectl apply -f nginx_sample.yaml
 kubectl get svc/nginx
 ```
 

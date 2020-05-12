@@ -92,6 +92,7 @@
   - name: Add dns records for master frontend
     shell: "etcdctl set /coredns/{{domain}}/{{cluster_type}}-master '{\"host\": \"{{inventory_hostname}}\"}'"
   - name: Create directory for haproxy.cfg
+    become: yes
     file:
       path: /opt/haproxy
       state: directory
