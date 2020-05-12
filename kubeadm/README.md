@@ -46,10 +46,11 @@ Login to any node with SSH.
 ```
 sudo -i
 export KUBECONFIG=/etc/kubernetes/admin.conf
-kubectl create deploy nginx --image=nginx
-kubectl expose deploy/nginx --type=NodePort --port=80
+# Copy `nginx_test_deploy.yaml` and `nginx_test_service.yaml` from `playbooks/kubeadm/files/` to any node.
+kubectl apply -f nginx_test_deploy.yaml
+kubectl apply -f nginx_test_service.yaml
 kubectl get svc/nginx
 ```
 
 Then, access the nginx service from web client with high-port number.
-e.g. http://multi-master.example:3xxxx
+e.g. http://multi-master.example:30080
