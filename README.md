@@ -11,7 +11,7 @@ Manage VMs for kubernetes clusters or devstack using `libvirt`.
 Setup `kubeadm` into VMs created by `libvirt` playbook for `single` or `multi` settings.
 And bootstrap VMs as kubernetes cluster.
 
-![k8s-cluster](k8s-cluster.png)
+![k8s-ha-cluster](k8s-ha-cluster.png)
 
 # devkube
 Create simple kubernetes cluster and install development environment on VMs created by `libvirt` playbook for `allinone` settings.
