@@ -1,12 +1,13 @@
+# VM config
 vm_types:
-- type: k8s
+- type: allinone
   # Image size in GB
   size: 64
   # Memory size in GB
   memory: 8
   cpus: 4
   vms:
-    - name: dev
+    - name: allinone
       ip_addr: 192.168.100.60
   user: kube
   password: password

@@ -2,7 +2,6 @@
   vars_files:
   pre_tasks:
   roles:
-  #- role: determine_first_master
   tasks:
   - name: Update and upgrade packages
     become: yes
@@ -85,12 +84,12 @@
       src: files/resolv.conf
       dest: /etc/resolv.conf
   - name: Add dns records for all nodes
-    shell: "etcdctl set /coredns/{{domain}}/{{hostvars[host]['hostname']}} '{\"host\": \"{{host}}\"}'"
+    shell: "etcdctl set /coredns/{{domain}}/{{stage}}/{{cluster_type}}/{{hostvars[host]['hostname']}} '{\"host\": \"{{host}}\"}'"
     loop: "{{groups['all']}}"
     loop_control:
       loop_var: host
   - name: Add dns records for master frontend
-    shell: "etcdctl set /coredns/{{domain}}/{{cluster_type}}-master '{\"host\": \"{{inventory_hostname}}\"}'"
+    shell: "etcdctl set /coredns/{{domain}}/{{stage}}/{{cluster_type}}/master '{\"host\": \"{{inventory_hostname}}\"}'"
   - name: Create directory for haproxy.cfg
     become: yes
     file:
@@ -132,6 +131,9 @@
       network_mode: host
       volumes:
         - /opt/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+  - name: Set hostname with domain
+    become: yes
+    shell: hostnamectl set-hostname {{hostvars[inventory_hostname]['hostname']}}.{{cluster_type}}.{{stage}}.{{domain}}
   post_tasks:
   handlers:
 - hosts:
@@ -173,7 +175,7 @@
     become: yes
     lineinfile:
       path: /etc/netplan/50-cloud-init.yaml
-      line: "                - 192.168.100.1"
+      line: "                - {{nameserver}}"
       state: absent
   - name: Set frontend DNS
     become: yes
@@ -187,6 +189,6 @@
     shell: netplan apply
   - name: Set hostname with domain
     become: yes
-    shell: hostnamectl set-hostname {{hostvars[inventory_hostname]['hostname']}}.{{domain}}
+    shell: hostnamectl set-hostname {{hostvars[inventory_hostname]['hostname']}}.{{cluster_type}}.{{stage}}.{{domain}}
   post_tasks:
   handlers:

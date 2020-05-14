@@ -18,8 +18,8 @@ sudo apt install qemu-kvm libvirt-bin virtinst bridge-utils cloud-image-utils wh
 ```
 
 # Cloud Init
-cloud init does not create swap as default.
-create cloud init CD image using `cloud-localds`
+Cloud init does not create swap as default.
+Create cloud init CD image using `cloud-localds`
 
 # VMs
 To manage libvirt VMs, the role uses `virt` module.
@@ -45,10 +45,11 @@ ansible-playbook -v -i recitativo sites.yaml -k -K
     - `recitativo`: For laptop machine
   + `cluster_type`: Kubernetes cluster type
     - `single`: Single master kubernetes cluster
-    - `multi`: Multi master kubernetes cluster
+    - `minimum`: Multi master kubernetes cluster with minimum flavor
+    - `medium`: Multi master kubernetes cluster with medium flavor
     - `allinone`: All-in-one kubernetes cluster incldes development environment
 
-Inventory file for bootstrapping k8s cluster with created VMs will be generated into this directory as `./dist/{{cluster_type}}`.
+Inventory file for bootstrapping k8s cluster with created VMs will be generated into this directory as `./dist/{{stage}}-{{cluster_type}}`.
 
 # Start/Stop/Restart VMs
 

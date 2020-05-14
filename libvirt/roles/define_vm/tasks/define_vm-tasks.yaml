@@ -1,8 +1,8 @@
 # Define VM from spec file for each vm
-- name: Define VM from spec file for {{cluster_type}} - {{vm_type.type}} - {{vm.name}}, if not exists
+- name: Define VM from spec file for {{stage}}-{{cluster_type}}-{{vm_type.type}}-{{vm.name}}, if not exists
   virt:
     uri: "{{libvirt_uri}}"
-    name: "{{cluster_type}}-{{vm_type.type}}-{{vm.name}}"
+    name: "{{stage}}-{{cluster_type}}-{{vm_type.type}}-{{vm.name}}"
     command: define
     xml: "{{lookup('template', 'vm.xml.j2')}}"
   when: not vm.name in virsh_list.list_vms

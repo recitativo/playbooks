@@ -4,6 +4,8 @@
 [libvirt-hosts:vars]
 stage=recitativo
 domain=example
+
 #cluster_type=single
-cluster_type=multi
+cluster_type=minimum
+#cluster_type=medium
 #cluster_type=allinone

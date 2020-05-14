@@ -2,7 +2,7 @@
 - name: Check Cloud Image exists
   stat: path="{{work_dir}}/{{image_url_file}}"
   register: cloud_image
-- name: Download Cloud Image - {{cluster_type}} - {{vm_type.type}}
+- name: Download Cloud Image {{image_url_file}}
   get_url:
     url: "{{image_url_base}}{{image_url_file}}"
     dest: "{{work_dir}}/{{image_url_file}}"

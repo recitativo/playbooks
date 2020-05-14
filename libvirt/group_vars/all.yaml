@@ -1,6 +1,8 @@
 # Cloud Image
-image_url_base: https://cloud-images.ubuntu.com/bionic/current/
-image_url_file: bionic-server-cloudimg-amd64.img
+#ubuntu_version: bionic
+ubuntu_version: focal
+image_url_base: "https://cloud-images.ubuntu.com/{{ubuntu_version}}/current/"
+image_url_file: "{{ubuntu_version}}-server-cloudimg-amd64.img"
 nameserver: 192.168.100.1
 gateway: 192.168.100.1
 libvirt_network: staticnat

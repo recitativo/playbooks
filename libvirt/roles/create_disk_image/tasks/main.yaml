@@ -1,6 +1,0 @@
-# create disk image for each vm type
-- name: Create Cloud Image
-  include_tasks: create_disk_image-tasks.yaml
-  loop: "{{vm_types}}"
-  loop_control:
-    loop_var: vm_type

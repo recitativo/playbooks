@@ -5,6 +5,7 @@ ethernets:
     - {{vm.ip_addr}}/24
     gateway4: {{gateway}}
     nameservers:
-      search: [ {{domain}} ]
+      search:
+      - {{cluster_type}}.{{stage}}.{{domain}}
       addresses:
       - {{nameserver}}

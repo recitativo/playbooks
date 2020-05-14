@@ -1,5 +1,5 @@
 # loop for VMs in each VM type
-- name: Shutdown VM for {{vm_type.type}}
+- name: Shutdown VMs {{stage}}-{{cluster_type}}-{{vm_type.type}}-*
   include_tasks: shutdown_vm-tasks.yaml
   loop: "{{vm_type.vms}}"
   loop_control:

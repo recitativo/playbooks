@@ -1,5 +1,8 @@
 [all:vars]
+stage={{stage}}
 cluster_type={{cluster_type}}
+gateway={{gateway}}
+nameserver={{nameserver}}
 {% if domain %}
 domain={{domain}}
 {% endif %}
@@ -7,7 +10,7 @@ domain={{domain}}
 {% for vm_type in vm_types %}
 [{{vm_type.type}}]
 {% for vm in vm_type.vms %}
-{{vm.ip_addr}} hostname={{cluster_type}}-{{vm.name}}
+{{vm.ip_addr}} hostname={{vm.name}}
 {% endfor %}
 
 [{{vm_type.type}}:vars]

@@ -1,5 +1,5 @@
 # loop for VMs in each VM type
-- name: Create/Update Cloud Init for VMs in {{vm_type.type}}
+- name: Create/Update Cloud Init for VMs in {{stage}}-{{vm_type.type}}
   include_tasks: create_cloud_init-tasks.yaml
   loop: "{{vm_type.vms}}"
   loop_control:

@@ -17,7 +17,6 @@
       when: inventory_hostname == first_master
     - role: join_nodes
       when: inventory_hostname != first_master
-    # add joined master address into haproxy.cfg
   tasks:
   post_tasks:
   handlers:

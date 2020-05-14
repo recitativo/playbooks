@@ -1,3 +1,4 @@
+# Provision VMs
 - hosts: libvirt-hosts
   vars_files:
     - vars/{{stage}}.yaml
@@ -6,7 +7,7 @@
   roles:
     - setup_work_dir
     - download_cloud_image
-    - create_disk_image
+    - create_backing_file
     - create_snapshot
     - create_cloud_init
     - define_vm

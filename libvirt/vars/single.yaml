@@ -1,3 +1,4 @@
+# VM config
 vm_types:
 - type: master
   # Image size in GB

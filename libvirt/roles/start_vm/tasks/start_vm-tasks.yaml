@@ -1,13 +1,13 @@
 # start each VM
-- name: Get status for VM {{cluster_type}} - {{vm_type.type}} - {{vm.name}}
+- name: Get status for VM {{stage}}-{{cluster_type}}-{{vm_type.type}}-{{vm.name}}
   virt:
     uri: "{{libvirt_uri}}"
-    name: "{{cluster_type}}-{{vm_type.type}}-{{vm.name}}"
+    name: "{{stage}}-{{cluster_type}}-{{vm_type.type}}-{{vm.name}}"
     command: status
   register: vm_status
-- name: Start VM for {{cluster_type}} - {{vm_type.type}} - {{vm.name}}, if its status is `shutdown`
+- name: Start VM for {{stage}}-{{cluster_type}}-{{vm_type.type}}-{{vm.name}}, if its status is `shutdown`
   virt:
     uri: "{{libvirt_uri}}"
-    name: "{{cluster_type}}-{{vm_type.type}}-{{vm.name}}"
+    name: "{{stage}}-{{cluster_type}}-{{vm_type.type}}-{{vm.name}}"
     command: start
   when: vm_status.status == "shutdown"

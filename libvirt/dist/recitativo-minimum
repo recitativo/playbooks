@@ -1,9 +1,12 @@
 [all:vars]
-cluster_type=multi
+stage=recitativo
+cluster_type=minimum
+gateway=192.168.100.1
+nameserver=192.168.100.1
 domain=example
 
 [frontend]
-192.168.100.40 hostname=multi-frontend
+192.168.100.40 hostname=frontend
 
 [frontend:vars]
 ansible_ssh_user=kube
@@ -11,9 +14,9 @@ ansible_ssh_pass=password
 ansible_sudo_pass=password
 
 [master]
-192.168.100.41 hostname=multi-master01
-192.168.100.42 hostname=multi-master02
-192.168.100.43 hostname=multi-master03
+192.168.100.41 hostname=master01
+192.168.100.42 hostname=master02
+192.168.100.43 hostname=master03
 
 [master:vars]
 ansible_ssh_user=kube
@@ -21,9 +24,9 @@ ansible_ssh_pass=password
 ansible_sudo_pass=password
 
 [worker]
-192.168.100.51 hostname=multi-worker01
-192.168.100.52 hostname=multi-worker02
-192.168.100.53 hostname=multi-worker03
+192.168.100.51 hostname=worker01
+192.168.100.52 hostname=worker02
+192.168.100.53 hostname=worker03
 
 [worker:vars]
 ansible_ssh_user=kube

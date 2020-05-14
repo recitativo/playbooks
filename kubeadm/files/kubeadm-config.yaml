@@ -33,7 +33,7 @@ apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 clusterName: "{{cluster_type}}"
 kubernetesVersion: v{{k8s_version}}
-controlPlaneEndpoint: "{{cluster_type}}-master.{{domain}}:6443"
+controlPlaneEndpoint: "master.{{cluster_type}}.{{stage}}.{{domain}}:6443"
 #certificatesDir: "/etc/kubernetes/pki"
 #imageRepository: "k8s.gcr.io"
 #useHyperKubeImage: false
@@ -46,10 +46,10 @@ controlPlaneEndpoint: "{{cluster_type}}-master.{{domain}}:6443"
 #    extraArgs:
 #      listen-client-urls: "https://127.0.0.1:2379,https://{{inventory_hostname}}:2379"
 #    serverCertSANs:
-#    - {{hostname}}.{{domain}}
+#    - {{hostname}}.{{cluster_type}}.{{stage}}.{{domain}}
 #    - {{inventory_hostname}}
 #    peerCertSANs:
-#    - {{hostname}}.{{domain}}
+#    - {{hostname}}.{{cluster_type}}.{{stage}}.{{domain}}
 #    - {{inventory_hostname}}
 #  # external:
 #    # endpoints:
@@ -73,7 +73,7 @@ networking:
 #  #  readOnly: false
 #  #  pathType: File
 #  certSANs:
-#  - {{hostname}}.{{domain}}
+#  - {{hostname}}.{{cluster_type}}.{{stage}}.{{domain}}
 #  - {{inventory_hostname}}
 #  timeoutForControlPlane: 4m0s
 #controllerManager:

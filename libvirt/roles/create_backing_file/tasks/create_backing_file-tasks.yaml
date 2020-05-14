@@ -1,0 +1,23 @@
+# create backing disk image for each vm type
+- name: Check backing disk image {{image_url_file}}-{{vm_type.size}}GB.qcow2
+  stat: path="{{work_dir}}/{{image_url_file}}-{{vm_type.size}}GB.qcow2"
+  register: disk_image
+- name: Create backing disk image for each image if not exists
+  block:
+  - name: Convert cloud image into qcow2 - {{image_url_file}}-{{vm_type.size}}GB.qcow2
+    shell: qemu-img convert -O qcow2 {{work_dir}}/{{image_url_file}} {{work_dir}}/{{image_url_file}}-{{vm_type.size}}GB.qcow2
+  - name: Get cloud image info - {{image_url_file}}-{{vm_type.size}}GB.qcow2
+    shell: qemu-img info {{work_dir}}/{{image_url_file}}-{{vm_type.size}}GB.qcow2 --output json
+    register: qcow2_info
+  - name: Parse cloud image info - {{image_url_file}}-{{vm_type.size}}GB.qcow2
+    set_fact: qcow2_json="{{qcow2_info.stdout|from_json}}"
+  - name: Get current disk size for cloud image - {{image_url_file}}-{{vm_type.size}}GB.qcow2
+    debug: msg="current disk size is {{qcow2_json["virtual-size"]}}"
+  - name: Calculate additional disk size for cloud image - {{image_url_file}}-{{vm_type.size}}GB.qcow2
+    shell: echo "{{vm_type.size * 1024 * 1024 * 1024 - qcow2_json['virtual-size']|int}}"
+    register: qcow2_resize
+  - name: Show additional disk size for cloud image - {{image_url_file}}-{{vm_type.size}}GB.qcow2
+    debug: msg="additional disk size for {{image_url_file}}-{{vm_type.size}}GB.qcow2 should be {{qcow2_resize.stdout}}"
+  - name: Resize disk for cloud image - {{image_url_file}}-{{vm_type.size}}GB.qcow2
+    shell: qemu-img resize {{work_dir}}/{{image_url_file}}-{{vm_type.size}}GB.qcow2 +{{qcow2_resize.stdout}}
+  when: not disk_image.stat.exists

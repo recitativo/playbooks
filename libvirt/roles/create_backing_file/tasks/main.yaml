@@ -1,0 +1,6 @@
+# create backing disk image for each vm type
+- name: Create Backing Disk Image
+  include_tasks: create_backing_file-tasks.yaml
+  loop: "{{vm_types}}"
+  loop_control:
+    loop_var: vm_type
