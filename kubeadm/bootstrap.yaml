@@ -17,6 +17,8 @@
       when: inventory_hostname == first_master
     - role: join_nodes
       when: inventory_hostname != first_master
+    - role: taint_nodes
+      when: "'master' in group_names and tainted"
   tasks:
   post_tasks:
   handlers:

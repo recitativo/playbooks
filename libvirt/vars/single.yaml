@@ -1,5 +1,16 @@
 # VM config
 vm_types:
+- type: frontend
+  # Image size in GB
+  size: 10
+  # Memory size in GB
+  memory: 1
+  cpus: 1
+  vms:
+    - name: frontend
+      ip_addr: 192.168.100.30
+  user: kube
+  password: password
 - type: master
   # Image size in GB
   size: 10
@@ -8,9 +19,10 @@ vm_types:
   cpus: 2
   vms:
     - name: master01
-      ip_addr: 192.168.100.30
+      ip_addr: 192.168.100.31
   user: kube
   password: password
+  tainted: false
 - type: worker
   # Image size in GB
   size: 20
@@ -19,11 +31,11 @@ vm_types:
   cpus: 2
   vms:
     - name: worker01
-      ip_addr: 192.168.100.31
+      ip_addr: 192.168.100.35
     - name: worker02
-      ip_addr: 192.168.100.32
+      ip_addr: 192.168.100.36
     - name: worker03
-      ip_addr: 192.168.100.33
+      ip_addr: 192.168.100.37
   user: kube
   password: password
 second_nic: no

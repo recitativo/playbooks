@@ -13,7 +13,7 @@ vm_types:
   password: password
 - type: master
   # Image size in GB
-  size: 10
+  size: 20
   # Memory size in GB
   memory: 2
   cpus: 2
@@ -26,19 +26,5 @@ vm_types:
       ip_addr: 192.168.100.43
   user: kube
   password: password
-- type: worker
-  # Image size in GB
-  size: 20
-  # Memory size in GB
-  memory: 2
-  cpus: 2
-  vms:
-    - name: worker01
-      ip_addr: 192.168.100.51
-    - name: worker02
-      ip_addr: 192.168.100.52
-    - name: worker03
-      ip_addr: 192.168.100.53
-  user: kube
-  password: password
+  tainted: true
 second_nic: no

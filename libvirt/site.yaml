@@ -1,7 +1,7 @@
 # Provision VMs
 - hosts: libvirt-hosts
   vars_files:
-    - vars/{{stage}}.yaml
+    - stages/{{stage}}.yaml
     - vars/{{cluster_type}}.yaml
   pre_tasks:
   roles:

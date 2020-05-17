@@ -1,9 +1,10 @@
 [all:vars]
-stage=recitativo
+stage=laptop
 cluster_type=minimum
 gateway=192.168.100.1
 nameserver=192.168.100.1
 domain=example
+tainted=true
 
 [frontend]
 192.168.100.40 hostname=frontend
@@ -19,16 +20,6 @@ ansible_sudo_pass=password
 192.168.100.43 hostname=master03
 
 [master:vars]
-ansible_ssh_user=kube
-ansible_ssh_pass=password
-ansible_sudo_pass=password
-
-[worker]
-192.168.100.51 hostname=worker01
-192.168.100.52 hostname=worker02
-192.168.100.53 hostname=worker03
-
-[worker:vars]
 ansible_ssh_user=kube
 ansible_ssh_pass=password
 ansible_sudo_pass=password

@@ -8,7 +8,7 @@ vm_types:
   cpus: 2
   vms:
     - name: frontend
-      ip_addr: 192.168.100.40
+      ip_addr: 192.168.100.50
   user: kube
   password: password
 - type: master
@@ -19,13 +19,14 @@ vm_types:
   cpus: 2
   vms:
     - name: master01
-      ip_addr: 192.168.100.41
+      ip_addr: 192.168.100.51
     - name: master02
-      ip_addr: 192.168.100.42
+      ip_addr: 192.168.100.52
     - name: master03
-      ip_addr: 192.168.100.43
+      ip_addr: 192.168.100.53
   user: kube
   password: password
+  tainted: false
 - type: worker
   # Image size in GB
   size: 40
@@ -34,11 +35,11 @@ vm_types:
   cpus: 2
   vms:
     - name: worker01
-      ip_addr: 192.168.100.51
+      ip_addr: 192.168.100.61
     - name: worker02
-      ip_addr: 192.168.100.52
+      ip_addr: 192.168.100.62
     - name: worker03
-      ip_addr: 192.168.100.53
+      ip_addr: 192.168.100.63
   user: kube
   password: password
 second_nic: no

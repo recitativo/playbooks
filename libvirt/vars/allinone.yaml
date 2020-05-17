@@ -8,7 +8,8 @@ vm_types:
   cpus: 4
   vms:
     - name: allinone
-      ip_addr: 192.168.100.60
+      ip_addr: 192.168.100.70
   user: kube
   password: password
+  tainted: true
 second_nic: no

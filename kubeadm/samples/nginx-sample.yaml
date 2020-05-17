@@ -57,21 +57,3 @@ spec:
     nodePort: 30081
   selector:
     app: nginx-test
-
----
-
-kind: Service
-apiVersion: v1
-metadata:
-  labels:
-    k8s-app: nginx-test
-  name: nginx-test-en
-spec:
-  type: ExternalName
-  externalName: nginx.minimum.recitativo.example
-  ports:
-  - port: 82
-    targetPort: 80
-    nodePort: 30082
-  selector:
-    app: nginx-test

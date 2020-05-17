@@ -6,6 +6,7 @@ nameserver={{nameserver}}
 {% if domain %}
 domain={{domain}}
 {% endif %}
+tainted={{tainted}}
 
 {% for vm_type in vm_types %}
 [{{vm_type.type}}]

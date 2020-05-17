@@ -41,13 +41,15 @@ ansible-playbook -v -i recitativo sites.yaml -k -K
 
 * `sites.yaml`: `libvirt-hosts`
   + `stage`: Environments to be managed
-    - `shu-stack`: For desktop machine
-    - `recitativo`: For laptop machine
+    - `desktop`: For desktop machine
+    - `laptop`: For laptop machine
   + `cluster_type`: Kubernetes cluster type
-    - `single`: Single master kubernetes cluster
-    - `minimum`: Multi master kubernetes cluster with minimum flavor
-    - `medium`: Multi master kubernetes cluster with medium flavor
-    - `allinone`: All-in-one kubernetes cluster incldes development environment
+    - `single`: For single master and workers
+    - `minimum`: For multi tainted masters
+    - `medium`: For multi masters and workers
+    - `allinone`: All-in-one single node incldes development environment
+
+_Note that `cluster_type`: `allinone` is for playbook `devkube`, and others are for playbook `kubeadm`._
 
 Inventory file for bootstrapping k8s cluster with created VMs will be generated into this directory as `./dist/{{stage}}-{{cluster_type}}`.
 

@@ -11,7 +11,7 @@ Before run playbook, run `ssh-agent bash` and `ssh-add <ssh key file>` to access
 
 Run playbook with `-k` option for input ssh passphrase and `-K` option for `sudo`.
 ```
-ansible-playbook -i ../libvirt/dist/<allinone|single|minimum|medium> site.yaml -k -K
+ansible-playbook -i ../libvirt/dist/<single|minimum|medium> site.yaml -k -K
 ```
 
 ## Bootstrap cluster
@@ -21,6 +21,8 @@ Use `-k` option for input ssh passphrase and `-K` option for `sudo` if you need.
 ```
 ansible-playbook -i ../libvirt/dist/<stage>-<cluster_type> bootstrap.yaml -k -K
 ```
+
+![k8s-ha-cluster](k8s-cluster-single.png)
 
 ![k8s-ha-cluster](k8s-ha-cluster-minimum.png)
 
