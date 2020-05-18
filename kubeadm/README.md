@@ -50,10 +50,8 @@ kubectl apply -f nginx-sample.yaml
 kubectl get svc/nginx
 ```
 
-Then, access the nginx service from web client with high-port number.
-
-* Access NodePort service: `http://master.<cluster_type>.<stage>.<domain>:30080`
-* Access LoadBalancer service: `http://master.<cluster_type>.<stage>.<domain>:30081`
+Then, access the nginx service from web client to following:
+`http://master.<cluster_type>.<stage>.<domain>:30080`
 
 To access nginx service using donamin name, add record into `/etc/hosts` in your local machine.
 ```

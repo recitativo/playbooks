@@ -7,6 +7,10 @@ spec:
     matchLabels:
       app: nginx-test
   replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   template:
     metadata:
       labels:
@@ -21,8 +25,15 @@ spec:
             memory: 100Mi
         ports:
         - containerPort: 80
+        volumeMounts:
+        - name: nfs-test
+          mountPath: /opt
       restartPolicy: Always
-
+      volumes:
+      - name: nfs-test
+        persistentVolumeClaim:
+          claimName:  nfs-test-claim
+  
 ---
 
 kind: Service
