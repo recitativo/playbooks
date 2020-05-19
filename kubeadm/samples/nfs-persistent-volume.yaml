@@ -64,7 +64,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nfs-test-claim1
+  name: nfs-test-claim-1
 spec:
   accessModes:
     - ReadWriteMany
@@ -79,7 +79,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nfs-test-claim2
+  name: nfs-test-claim-2
 spec:
   accessModes:
     - ReadWriteMany
@@ -94,7 +94,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nfs-test-claim5
+  name: nfs-test-claim-5
 spec:
   accessModes:
     - ReadWriteMany

@@ -51,7 +51,14 @@ kubectl get svc/nginx
 ```
 
 Then, access the nginx service from web client to following:
-`http://master.<cluster_type>.<stage>.<domain>:30080`
+`http://master.<cluster_type>.<stage>.<domain>:31080`
+
+### Use ingress-nginx controller
+
+Deploy ingress-nginx controller running `kubectl apply -f samples/ingress-nginx-controller.yaml`.
+This manifest is downloaded from `https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/deploy.yaml` and added `nodePort: 30080` and `nodePort: 30443` for its service.
+
+Deploy ingress object from `sample/nginx-ingress.yaml`
 
 To access nginx service using donamin name, add record into `/etc/hosts` in your local machine.
 ```

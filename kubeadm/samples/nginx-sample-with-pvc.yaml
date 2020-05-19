@@ -27,12 +27,12 @@ spec:
         - containerPort: 80
         volumeMounts:
         - name: nfs-test
-          mountPath: /opt
+          mountPath: /usr/share/nginx/html
       restartPolicy: Always
       volumes:
       - name: nfs-test
         persistentVolumeClaim:
-          claimName:  nfs-test-claim
+          claimName:  nfs-test-claim-1
   
 ---
 
@@ -47,6 +47,6 @@ spec:
   ports:
   - port: 80
     targetPort: 80
-    nodePort: 30080
+    nodePort: 31080
   selector:
     app: nginx-test

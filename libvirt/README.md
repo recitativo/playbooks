@@ -55,6 +55,19 @@ Inventory file for bootstrapping k8s cluster with created VMs will be generated 
 
 # Start/Stop/Restart VMs
 
+When you start/stop k8s cluster nodes, you need to run followings for tainted masters and workers to prevent rescheduling pods.
+
+Befor stop:
+```
+kubectl drain --ignore-daemonsets <node>
+```
+
+Then run start or stop
 ```
 ansible-playbook -i <stage> <start.yaml|stop.yaml|restart.yaml>
+```
+
+After start:
+```
+kubectl uncordon <node>
 ```
