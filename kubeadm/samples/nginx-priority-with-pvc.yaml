@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-priority
+spec:
+  selector:
+    matchLabels:
+      app: nginx-priority
+  replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-priority
+    spec:
+      containers:
+      - name: master
+        image: nginx
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nfs-priority
+          mountPath: /usr/share/nginx/html
+      restartPolicy: Always
+      volumes:
+      - name: nfs-priority
+        persistentVolumeClaim:
+          claimName:  nfs-test-claim-2
+      nodeSelector:
+        status: priority
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    k8s-app: nginx-priority
+  name: nginx-priority
+spec:
+  # provide via only ingress-nginx
+  #type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    #nodePort: 31081
+  selector:
+    app: nginx-priority

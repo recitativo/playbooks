@@ -59,6 +59,7 @@ Deploy ingress-nginx controller running `kubectl apply -f samples/ingress-nginx-
 This manifest is downloaded from `https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/deploy.yaml` and added `nodePort: 30080` and `nodePort: 30443` for its service.
 
 Deploy ingress object from `sample/nginx-ingress.yaml`
+If you set sub-path into `spec.rules.http.paths.path`, e.g. as `/test`, you need to construct same directory structure in the pod's volume.
 
 To access nginx service using donamin name, add record into `/etc/hosts` in your local machine.
 ```
