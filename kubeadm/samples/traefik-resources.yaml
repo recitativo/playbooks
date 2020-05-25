@@ -1,0 +1,64 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik
+spec:
+  entryPoints:
+    - traefik
+  routes:
+  - kind: Rule
+    match: Host(`traefik.minimum.laptop.example`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+    services:
+    - name: traefik
+      port: 8080
+      traefik.minimum.laptop.example
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: web
+spec:
+  entryPoints:
+    - web
+    #- websecure
+  routes:
+  - kind: Rule
+    match: Host(`stream-services.minimum.laptop.example`) && PathPrefix(`/test`)
+    priority: 12
+    services:
+    - kind: Service
+      name: nginx-test
+      port: 80
+      strategy: RoundRobin
+  - kind: Rule
+    match: PathPrefix(`/priority`)
+    services:
+    - kind: Service
+      name: nginx-priority
+      port: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: whoami-tcp
+spec:
+  entryPoints:
+    - whoami
+  routes:
+  - match: HostSNI(`*`)
+    services:
+    - name: whoami
+      port: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteUDP
+metadata:
+  name: coredns-udp
+spec:
+  entryPoints:
+    - dns
+  routes:
+  - services:
+    - name: coredns-traefik
+      port: 53
+---

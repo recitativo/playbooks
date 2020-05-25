@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coredns
+  labels:
+    app: coredns
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: coredns
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: coredns
+    spec:
+      containers:
+      - image: coredns/coredns
+        imagePullPolicy: Always
+        name: coredns
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: coredns
+  labels:
+    app: coredns
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 53
+    protocol: UDP
+    targetPort: 53
+    nodePort: 30053
+  type: NodePort
+  selector:
+    app: coredns
+  sessionAffinity: None
+status:
+  loadBalancer: {}

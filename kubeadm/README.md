@@ -22,18 +22,18 @@ Use `-k` option for input ssh passphrase and `-K` option for `sudo` if you need.
 ansible-playbook -i ../libvirt/dist/<stage>-<cluster_type> bootstrap.yaml -k -K
 ```
 
-![k8s-ha-cluster](k8s-cluster-single.png)
+![k8s-cluster-single](k8s-cluster-single.png)
 
-![k8s-ha-cluster](k8s-ha-cluster-minimum.png)
+![k8s-ha-cluster-minimum](k8s-ha-cluster-minimum.png)
 
-![k8s-ha-cluster](k8s-ha-cluster-medium.png)
+![k8s-ha-cluster-medium](k8s-ha-cluster-medium.png)
 
 ## Use DNS server on `frontend` instance to access inside cluster, e.g. your services.
 
 Add record into `/etc/hosts` and reboot your machine.
 
 ```
-# k8s HA cluster frontend with haproxy
+# k8s HA cluster frontend with nginx as load balancer
 192.168.100.40 master.<cluster_type>.<stage>.<domain>
 ```
 
@@ -45,47 +45,55 @@ Login to any node with SSH.
 ```
 sudo -i
 export KUBECONFIG=/etc/kubernetes/admin.conf
-# Copy `nginx-sample.yaml` from `playbooks/kubeadm/samples/` to any node.
-kubectl apply -f nginx-sample.yaml
+# Copy `nginx-test.yaml` from `playbooks/kubeadm/samples/` to any node.
+kubectl apply -f nginx-test.yaml
 kubectl get svc/nginx
 ```
 
 Then, access the nginx service from web client to following:
 `http://master.<cluster_type>.<stage>.<domain>:31080`
 
+## Ingress
+
+![k8s-cluster-ingress](k8s-cluster-ingress.png)
+
+**To address application that listens both udp and tcp in same port, this cluster uses external `nginx` for load balancer and `traefik` as ingress controller.**
+
+### Use ingress-traefik controller
+
+To control not only http and tcp, also udp ingress, `ingress-traefik` is helpful.
+To deploy `ingress-traefik`, do `kubectl apply -f sample/traefik*` yaml files.
+
 ### Use ingress-nginx controller
 
 Deploy ingress-nginx controller running `kubectl apply -f samples/ingress-nginx-controller.yaml`.
 This manifest is downloaded from `https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/deploy.yaml` and added `nodePort: 30080` and `nodePort: 30443` for its service.
 
-Deploy ingress object from `sample/nginx-ingress.yaml`
+Deploy ingress object from `sample/ingress-nginx.yaml`
 If you set sub-path into `spec.rules.http.paths.path`, e.g. as `/test`, you need to construct same directory structure in the pod's volume.
 
 To access nginx service using donamin name, add record into `/etc/hosts` in your local machine.
 ```
-192.168.100.40 nginx.<cluster_type>.<stage>.<domain>
+192.168.100.40 ingress-nginx.<cluster_type>.<stage>.<domain>
 ```
 Also, add DNS record as follow at frontend host:
 ```
-etcdctl set /coredns/<domain>/<stage>/<cluster_type>/nginx '"host": "192.168.100.40"'
+etcdctl set /coredns/<domain>/<stage>/<cluster_type>/ingress-nginx '"host": "192.168.100.40"'
 ```
-And add haproxy setting into `/opt/haproxy/haproxy.cfg` as follow:
+And ingress-nginx config file into `http` directive in `/opt/nginx-lb/nginx.conf` as follow, or copy `samples/nginx.conf` to `/opt/nginx-lb/nginx.conf`:
 ```
-frontend web
-    bind *:80
-    use_backend nginx if { hdr(host) -i nginx.<cluster_type>.<stage>.<domain> }
+  include /etc/nginx/conf.d/ingress-nginx.conf;
+```
+Also, copy `samples/nginx-ingress-nginx.conf` into `/opt/nginx-lb/nginx-ingress-nginx.conf`
+And recreate `nginx` container using `sample/nginx-recreate.sh`.
+Then, access `http://ingress-nginx.<cluster_type>.<stage>.<domain>` from browser.
 
-backend nginx
-    server master01 192.168.100.41:30080 check inter 5s
-    server master02 192.168.100.42:30080 check inter 5s
-    server master03 192.168.100.43:30080 check inter 5s
-    balance roundrobin
-```
-And restart `haproxy` container as follow:
-```
-sudo docker restart haproxy
-```
-Then, access `http://nginx.<cluster_type>.<stage>.<domain>` from browser.
+## Others
+
+### Deploy Kubernetes Dashboard
+
+Same as above, copy files in `playbooks/kubeadm/samples/` and run following:
+* `./deploy-kubernetes-dashboard.sh`
 
 ### Deploy Metrics Server
 Same as above, copy files in `playbooks/kubeadm/samples/`.
@@ -93,8 +101,3 @@ See `deploy-metrics-server.sh`, download manifest for metrics-server and edit th
 
 Then, run following:
 * `./deploy-metrics-server.sh`
-
-### Deploy Kubernetes Dashboard
-
-Same as above, copy files in `playbooks/kubeadm/samples/` and run following:
-* `./deploy-kubernetes-dashboard.sh`

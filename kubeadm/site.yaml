@@ -92,47 +92,51 @@
       loop_var: host
   - name: Add dns records for master frontend
     shell: "etcdctl set /coredns/{{domain}}/{{stage}}/{{cluster_type}}/master '{\"host\": \"{{inventory_hostname}}\"}'"
-  - name: Create directory for haproxy.cfg
+  - name: Add dns records for service frontend
+    shell: "etcdctl set /coredns/{{domain}}/{{stage}}/{{cluster_type}}/master '{\"host\": \"{{inventory_hostname}}\"}'"
+  - name: Create directory for nginx-lb
     become: yes
     file:
-      path: /opt/haproxy
+      path: /opt/nginx-lb
       state: directory
-  - name: Copy haproxy.cfg
+  - name: Copy nginx.conf
     become: yes
     copy:
-      src: files/haproxy.cfg
-      dest: /opt/haproxy/haproxy.cfg
-  - name: Add haproxy backend for api servers
+      src: files/nginx.conf
+      dest: /opt/nginx-lb/nginx.conf
+  - name: Copy nginx-default.conf
+    become: yes
+    copy:
+      src: files/nginx-default.conf
+      dest: /opt/nginx-lb/default.conf
+  - name: Copy nginx-apiserver.conf
+    become: yes
+    copy:
+      src: files/nginx-apiserver.conf
+      dest: /opt/nginx-lb/apiserver.conf
+  - name: Add masters into apiserver.conf
     become: yes
     lineinfile:
-      path: /opt/haproxy/haproxy.cfg
-      line: "    server {{hostvars[host]['hostname']}} {{host}}:6443 check inter 5s"
-      insertafter: "^backend k8s-apiservers"
+      path: /opt/nginx-lb/apiserver.conf
+      line: "  server {{hostvars[inventory_hostname]['hostname']}}.{{cluster_type}}.{{stage}}.{{domain}}"
+      insertafter: "# masters"
       state: present
     loop: "{{groups['master']}}"
     loop_control:
       loop_var: host
-  - name: Add haproxy backend for user services
-    become: yes
-    lineinfile:
-      path: /opt/haproxy/haproxy.cfg
-      line: "    server {{hostvars[host]['hostname']}} {{host}}"
-      insertafter: "^backend user-services"
-      state: present
-    loop: "{{groups['master']}}"
-    loop_control:
-      loop_var: host
-  - name: Run haproxy container
+  - name: Run nginx container for load balancer
     become: yes
     docker_container:
-      name: haproxy
-      image: haproxy:2.1.4
+      name: nginx
+      image: nginx
       state: started
       recreate: yes
       restart_policy: always
       network_mode: host
       volumes:
-        - /opt/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+        - /opt/nginx-lb/nginx.conf:/etc/nginx/nginx.conf
+        - /opt/nginx-lb/default.conf:/etc/nginx/conf.d/default.conf
+        - /opt/nginx-lb/apiserver.conf:/etc/nginx/conf.d/apiserver.conf
   - name: Set hostname with domain
     become: yes
     shell: hostnamectl set-hostname {{hostvars[inventory_hostname]['hostname']}}.{{cluster_type}}.{{stage}}.{{domain}}

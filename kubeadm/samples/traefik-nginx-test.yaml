@@ -1,0 +1,6 @@
+apiVersion: trefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nginx-test-ir
+spec:
+  entryPoints: web
