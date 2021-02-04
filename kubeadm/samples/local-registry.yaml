@@ -1,0 +1,191 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    local-registry: registry
+  name: nfs-registry
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /opt/nfs/registry/data
+    server: frontend
+  capacity:
+    storage: 200Mi
+  persistentVolumeReclaimPolicy: Retain
+  #claimRef:
+  #  namespace: default
+  #  name: registry
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    local-registry: registry-nginx
+  name: nfs-registry-nginx
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /opt/nfs/registry/nginx
+    server: frontend
+  capacity:
+    storage: 200Mi
+  persistentVolumeReclaimPolicy: Retain
+  #claimRef:
+  #  namespace: default
+  #  name: registry-nginx
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    local-registry: registry
+  name: registry
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Mi
+  #storageClassName: registry
+  selector:
+    matchLabels:
+      local-registry: registry
+  #volumeName: nfs-registry
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    local-registry: registry-nginx
+  name: registry-nginx
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Mi
+  #storageClassName: registry-nginx
+  selector:
+    matchLabels:
+      local-registry: registry-nginx
+  #volumeName: nfs-registry-nginx
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    local-registry: registry
+  name: local-registry
+spec:
+  ports:
+  - name: registry
+    port: 5000
+    targetPort: 5000
+  selector:
+    local-registry: registry
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    local-registry: nginx
+  name: local-registry-nginx
+spec:
+  ports:
+  - name: nginx
+    port: 443
+    targetPort: 443
+  selector:
+    local-registry: nginx
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    local-registry: registry
+  name: local-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      local-registry: registry
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        local-registry: registry
+    spec:
+      containers:
+      - env:
+        - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
+          value: /data
+        image: registry:2
+        name: registry
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - mountPath: /data
+          name: registry
+      restartPolicy: Always
+      volumes:
+      - name: registry
+        persistentVolumeClaim:
+          claimName: registry
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    local-registry: nginx
+  name: local-registry-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      local-registry: nginx
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        local-registry: nginx
+    spec:
+      containers:
+      - image: nginx:1.17
+        name: nginx
+        ports:
+        - containerPort: 443
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/nginx.conf.d
+          name: registry-nginx
+      restartPolicy: Always
+      volumes:
+      - name: registry-nginx
+        persistentVolumeClaim:
+          claimName: registry-nginx

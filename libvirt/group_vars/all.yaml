@@ -1,5 +1,4 @@
 # Cloud Image
-#ubuntu_version: bionic
 ubuntu_version: focal
 image_url_base: "https://cloud-images.ubuntu.com/{{ubuntu_version}}/current/"
 image_url_file: "{{ubuntu_version}}-server-cloudimg-amd64.img"

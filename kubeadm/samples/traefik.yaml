@@ -27,7 +27,7 @@ spec:
             - --entrypoints.dns.address=:53/udp
             - --entrypoints.web.address=:80
             - --entrypoints.whoami.address=:81/tcp
-            #- --entrypoints.websecure.address=:443
+            - --entrypoints.websecure.address=:443
             - --providers.kubernetescrd
             #- --certificatesresolvers.myresolver.acme.tlschallenge
             #- --certificatesresolvers.myresolver.acme.email=foo@you.com
@@ -45,9 +45,9 @@ spec:
             - name: web
               containerPort: 80
               protocol: TCP
-            #- name: websecure
-            #  containerPort: 443
-            #  protocol: TCP
+            - name: websecure
+              containerPort: 443
+              protocol: TCP
             - name: admin
               containerPort: 81
               protocol: TCP
@@ -74,9 +74,10 @@ spec:
       port: 80
       protocol: TCP
       nodePort: 32080
-    #- name: websecure
-    #  port: 443
-    #  protocol: TCP
+    - name: websecure
+      port: 443
+      protocol: TCP
+      nodePort: 32443
     - name: whoami
       port: 81
       protocol: TCP
@@ -84,4 +85,3 @@ spec:
   selector:
     app: traefik
 ---
-  

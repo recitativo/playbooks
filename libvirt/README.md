@@ -36,7 +36,7 @@ use `tags` for task to re-create VMs.
 Before run playbook, run `ssh-agent bash` and `ssh-add <ssh key file>` to access `libvirt_host` via ssh.
 Run playbook with `-k` option for input ssh passphrase and `-K` option for `sudo`.
 ```
-ansible-playbook -v -i recitativo sites.yaml -k -K
+ansible-playbook -v -i <stage> sites.yaml -k -K
 ```
 
 * `sites.yaml`: `libvirt-hosts`

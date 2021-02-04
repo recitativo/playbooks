@@ -118,7 +118,8 @@
     become: yes
     lineinfile:
       path: /opt/nginx-lb/apiserver.conf
-      line: "  server {{hostvars[inventory_hostname]['hostname']}}.{{cluster_type}}.{{stage}}.{{domain}}"
+      #line: "  server {{hostvars[inventory_hostname]['hostname']}}.{{cluster_type}}.{{stage}}.{{domain}};"
+      line: "  server {{inventory_hostname}}:6443;"
       insertafter: "# masters"
       state: present
     loop: "{{groups['master']}}"

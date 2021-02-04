@@ -23,4 +23,3 @@ ansible_sudo_pass=password
 ansible_ssh_user=kube
 ansible_ssh_pass=password
 ansible_sudo_pass=password
-

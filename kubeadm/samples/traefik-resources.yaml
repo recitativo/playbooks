@@ -16,12 +16,38 @@ spec:
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
+  name: websecure
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - kind: Rule
+    match: Host(`registry.minimum.laptop.example`)
+    priority: 12
+    services:
+    - kind: Service
+      name: local-registry-nginx
+      port: 443
+      strategy: RoundRobin
+      tls:
+        passthrough: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
   name: web
 spec:
   entryPoints:
     - web
-    #- websecure
   routes:
+  - kind: Rule
+    match: Host(`registry.minimum.laptop.example`)
+    priority: 12
+    services:
+    - kind: Service
+      name: local-registry
+      port: 5000
+      strategy: RoundRobin
   - kind: Rule
     match: Host(`stream-services.minimum.laptop.example`) && PathPrefix(`/test`)
     priority: 12
@@ -36,6 +62,14 @@ spec:
     - kind: Service
       name: nginx-priority
       port: 80
+  - kind: Rule
+    match: PathPrefix(`/dashboard`)
+    services:
+    - kind: Service
+      name: kubernetes-dashboard
+      port: 443
+      tls:
+      - passthrough: true
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRouteTCP

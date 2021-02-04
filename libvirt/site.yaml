@@ -12,7 +12,9 @@
     - create_cloud_init
     - define_vm
     - start_vm
-    - create_guests_inventory
+    - role: create_guests_inventory
+      tags:
+        - guest_inventory
   tasks:
   post_tasks:
   handlers:
