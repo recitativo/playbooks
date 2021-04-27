@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # show token for kubernetes-dashboard
-kubectl -n kubernetes-dashboard describe secrets kubernetes-dashboard-token|tr ' ' '\n'|tail -n 2
+kubectl -n kubernetes-dashboard get secrets -o=jsonpath='.items[0].data.token}'
